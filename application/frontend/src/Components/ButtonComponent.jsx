@@ -12,6 +12,24 @@ function ButtonComponent({ text, onClick, api, type = "button", className = "", 
     };
 
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    const handleClick = async (event) => {
+
+    }
+
+    return (
+        <button
+            className={className}
+            style={buttonStyle}
+            onClick={handleClick}
+            disabled={loading}
+            type={type}
+        >
+            {loading ? "..." : text}
+            {error ? ` (${error})` : ""}
+        </button>
+    );
 
 }
 export default ButtonComponent;
