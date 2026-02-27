@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/input.jsx";
-import ButtonComponent from "../components/button.jsx";
+import ButtonComponent from "../components/ButtonComponent.jsx";
 
 
 function Login() {
