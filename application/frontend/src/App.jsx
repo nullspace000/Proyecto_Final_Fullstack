@@ -1,10 +1,15 @@
 import './App.css'
-import Navbar from './components/Navbar'
+import Navbar from './components/Navbar' 
 import Login from './pages/Login'
 
 function App() {
   return (
-    <Login/>
+    <>
+      <Navbar />
+      <div style={{ marginTop: '80px' }}>
+        <Login />
+      </div>
+    </>
   )
 }
 
