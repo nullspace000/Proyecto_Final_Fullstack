@@ -11,6 +11,7 @@ const path = require('path');
 
 // Import routes
 const mediaRoutes = require('./src/routes/mediaRoutes');
+const authRoutes = require('./src/routes/authRoutes');
 
 // Initialize Express app
 const app = express();
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/media', mediaRoutes);
 
 // Health check endpoint
@@ -42,12 +44,17 @@ app.get('/api', (req, res) => {
         name: 'Media Tracker API',
         version: '1.0.0',
         endpoints: {
+            auth: {
+                'POST /api/auth/register': 'Register a new user',
+                'POST /api/auth/login': 'Login user',
+                'GET /api/auth/me': 'Get current user (protected)'
+            },
             media: {
-                'GET /api/media': 'Get all media items',
-                'GET /api/media/:id': 'Get media item by ID',
-                'POST /api/media': 'Create new media item',
-                'PUT /api/media/:id': 'Update media item',
-                'DELETE /api/media/:id': 'Delete media item'
+                'GET /api/media': 'Get all media items (protected)',
+                'GET /api/media/:id': 'Get media item by ID (protected)',
+                'POST /api/media': 'Create new media item (protected)',
+                'PUT /api/media/:id': 'Update media item (protected)',
+                'DELETE /api/media/:id': 'Delete media item (protected)'
             }
         }
     });

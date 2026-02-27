@@ -1,8 +1,5 @@
 const MediaItem = require('../models/MediaItem');
 
-// Default user ID for single-user mode (without authentication)
-const DEFAULT_USER_ID = 'default-user';
-
 // Map frontend media types to database media_type_id
 const mediaTypeMap = {
     'movie': 1,
@@ -22,6 +19,11 @@ const mediaTypeIdToName = {
 };
 
 const mediaController = {
+    // Helper to get user ID from request (from JWT) or fall back to default
+    getUserId(req) {
+        return req.user ? req.user.id : DEFAULT_USER_ID;
+    },
+
     async create(req, res) {
         try {
             const { 
@@ -43,7 +45,7 @@ const mediaController = {
             const itemStatus = status || 'watchlist';
 
             const mediaItem = await MediaItem.create({
-                user_id: DEFAULT_USER_ID,
+                user_id: this.getUserId(req),
                 title,
                 media_type_id: normalizedMediaType,
                 status: itemStatus,
@@ -84,7 +86,7 @@ const mediaController = {
                 }
             }
 
-            const items = await MediaItem.findByUser(DEFAULT_USER_ID, options);
+            const items = await MediaItem.findByUser(this.getUserId(req), options);
 
             // Map media_type_id back to string for frontend
             const mappedItems = items.map(item => ({
@@ -163,7 +165,7 @@ const mediaController = {
         try {
             const { id } = req.params;
 
-            const success = await MediaItem.delete(id, DEFAULT_USER_ID);
+            const success = await MediaItem.delete(id, this.getUserId(req));
             
             if (!success) {
                 return res.status(404).json({ error: 'Media item not found' });
