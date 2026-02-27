@@ -16,41 +16,35 @@ const authController = {
      */
     async register(req, res) {
         try {
-            const { username, email, password, display_name } = req.body;
+            const { username, email, password } = req.body;
 
-            // Validate required fields
             if (!username || !email || !password) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     error: 'Missing required fields',
                     message: 'Username, email, and password are required'
                 });
             }
 
-            // Check if username already exists
             const [existingUsers] = await pool.query(
                 'SELECT id FROM users WHERE username = ? OR email = ?',
                 [username, email]
             );
 
             if (existingUsers.length > 0) {
-                return res.status(409).json({ 
+                return res.status(409).json({
                     error: 'User already exists',
                     message: 'Username or email is already taken'
                 });
             }
 
-            // Hash password
-            const saltRounds = 10;
-            const passwordHash = await bcrypt.hash(password, saltRounds);
-
-            // Create user
+            const passwordHash = await bcrypt.hash(password, 10);
             const userId = uuidv4();
+
             await pool.query(
-                'INSERT INTO users (id, username, email, password_hash, display_name) VALUES (?, ?, ?, ?, ?)',
-                [userId, username, email, passwordHash, display_name || username]
+                'INSERT INTO users (id, username, email, password_hash) VALUES (?, ?, ?, ?)',
+                [userId, username, email, passwordHash]
             );
 
-            // Generate JWT token
             const token = jwt.sign(
                 { userId, username, email },
                 constants.JWT_SECRET,
@@ -63,13 +57,13 @@ const authController = {
                 user: {
                     id: userId,
                     username,
-                    email,
-                    display_name: display_name || username
+                    email
                 }
             });
+
         } catch (error) {
             console.error('Register error:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Registration failed',
                 message: 'Failed to register user'
             });
@@ -86,7 +80,7 @@ const authController = {
 
             // Validate required fields
             if (!username || !password) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     error: 'Missing credentials',
                     message: 'Username and password are required'
                 });
@@ -99,7 +93,7 @@ const authController = {
             );
 
             if (users.length === 0) {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     error: 'Invalid credentials',
                     message: 'Username or password is incorrect'
                 });
@@ -111,7 +105,7 @@ const authController = {
             const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
             if (!isPasswordValid) {
-                return res.status(401).json({ 
+                return res.status(401).json({
                     error: 'Invalid credentials',
                     message: 'Username or password is incorrect'
                 });
@@ -137,7 +131,7 @@ const authController = {
             });
         } catch (error) {
             console.error('Login error:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Login failed',
                 message: 'Failed to login'
             });
@@ -158,7 +152,7 @@ const authController = {
             );
 
             if (users.length === 0) {
-                return res.status(404).json({ 
+                return res.status(404).json({
                     error: 'User not found',
                     message: 'User does not exist'
                 });
@@ -167,7 +161,7 @@ const authController = {
             res.json({ user: users[0] });
         } catch (error) {
             console.error('Get user error:', error);
-            res.status(500).json({ 
+            res.status(500).json({
                 error: 'Failed to get user',
                 message: 'Failed to retrieve user information'
             });
